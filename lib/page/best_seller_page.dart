@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:buoi10/data/product_service.dart';
 
 class BestSellerPage extends StatefulWidget {
   const BestSellerPage({super.key});
@@ -11,6 +10,7 @@ class BestSellerPage extends StatefulWidget {
 }
 
 class _BestSellerPageState extends State<BestSellerPage> {
+  final ProductService apiService = ProductService(); // Tạo instance của ApiService
   int? selectedIndex;
   List<dynamic> foodItems = [];
   bool isLoading = true;
@@ -22,17 +22,12 @@ class _BestSellerPageState extends State<BestSellerPage> {
   }
 
   Future<void> fetchBestSellers() async {
-    final String apiUrl = 'https://67ce3259125cd5af7579cb16.mockapi.io/product'; // Thay bằng URL API thực tế
     try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        setState(() {
-          foodItems = json.decode(response.body);
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load bestsellers');
-      }
+      List<dynamic> data = await apiService.fetchBestSellers();
+      setState(() {
+        foodItems = data;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -44,6 +39,7 @@ class _BestSellerPageState extends State<BestSellerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF6EFE8),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8ECE2),
         elevation: 0,
@@ -52,29 +48,20 @@ class _BestSellerPageState extends State<BestSellerPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      backgroundColor: const Color(0xFFF8ECE2),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tiêu đề
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Best Seller',
-                  style: GoogleFonts.poppins(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
+            Text(
+              'Best Seller',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
             const SizedBox(height: 10),
-
-            // Kiểm tra trạng thái tải dữ liệu
             isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Expanded(
@@ -159,7 +146,9 @@ class _BestSellerPageState extends State<BestSellerPage> {
                                     children: [
                                       for (int i = 0; i < 5; i++)
                                         Icon(
-                                          i < (item['rating']?.toInt() ?? 0) ? Icons.star : Icons.star_border,
+                                          i < (item['rating']?.toInt() ?? 0)
+                                              ? Icons.star
+                                              : Icons.star_border,
                                           color: Colors.red,
                                           size: 16,
                                         ),
@@ -171,11 +160,8 @@ class _BestSellerPageState extends State<BestSellerPage> {
                                           color: Colors.grey[600],
                                         ),
                                       ),
-
                                     ],
                                   ),
-
-
                                 ],
                               ),
                             ),

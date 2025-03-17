@@ -40,11 +40,12 @@ class RestaurantCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: Stack(
             children: [
-              Image.asset(
+              Image.network(
                 imageUrl,
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 100, color: Colors.grey),
               ),
               Container(
                 width: double.infinity,

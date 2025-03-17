@@ -6,15 +6,17 @@ import '../widget/OnboardingScreen2.dart';
 import '../widget/OnboardingScreen3.dart';
 import 'package:buoi10/page/home_page.dart';
 import 'package:buoi10/page/reservation_page.dart';
+import 'package:buoi10/page/login_page.dart';
+import 'package:buoi10/page/sign_up.dart';
 
 void main() {
   runApp(MaterialApp(
     home: AnimatedSplashScreen(
       duration: 3000,
       splash: 'assets/images/Logo.png',
-      nextScreen: OnboardingScreen(),
+      nextScreen:LoginScreen(),
       splashTransition: SplashTransition.fadeTransition,
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF6EFE8),
     ),
   ));
 }
