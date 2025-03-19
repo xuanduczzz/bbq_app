@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:buoi10/widget/restaurant_card.dart';
+import 'package:buoi10/widget/date_picker.dart';
+import 'package:buoi10/widget/time_picker.dart';
+import 'package:buoi10/widget/best_seller_item.dart';
+import 'package:buoi10/data/product_service.dart';
 
 class ReservationPage extends StatefulWidget {
   final String name;
@@ -13,207 +18,50 @@ class ReservationPage extends StatefulWidget {
   });
 
   @override
-  _ReservationPageState createState() => _ReservationPageState();
+  State<ReservationPage> createState() => _ReservationPageState();
 }
 
 class _ReservationPageState extends State<ReservationPage> {
-  int selectedDate = 25;
-  String selectedTime = "18h30 - 19h00";
-  int peopleCount = 2;
-  bool vaccinePass = false;
-  TextEditingController nameController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController notesController = TextEditingController();
-  bool agreeTerms = false;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+  int? selectedGuests;
+  bool isChecked = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Reservation")),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Restaurant Details"),
+        ),
+        body: Column(
           children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(widget.imageUrl, width: double.infinity, height: 500),
-                ),
-                Positioned(
-                  left: 16,
-                  bottom: 16,
-                  right: 16,
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.name,
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          widget.address,
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                        SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Now Open - Closes At 10:00PM",
-                              style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Row(
-                                children: [
-                                  Text("4.5", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                  Icon(Icons.star, color: Colors.white, size: 16),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            RestaurantCard(
+              name: widget.name,
+              address: widget.address,
+              imageUrl: widget.imageUrl,
+              isClickable: false,
+            ),
+            const TabBar(
+              tabs: [
+                Tab(text: "Reservation"),
+                Tab(text: "Menu"),
+                Tab(text: "Review"),
               ],
             ),
-            SizedBox(height: 16),
-
-            // Taskbar (Reservation, Menu, Reviews)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildTab("Reservation", true),
-                _buildTab("Menu", false),
-                _buildTab("Reviews", false),
-              ],
-            ),
-
-            SizedBox(height: 10),
-
-            // Các yêu cầu đặc biệt
-            _buildRequirement("Must Have Vaccinated Card"),
-            _buildRequirement("Deposit For Reservation"),
-
-            SizedBox(height: 15),
-
-            // Chọn ngày
-            Text("Pick your date", style: TextStyle(fontWeight: FontWeight.bold)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(5, (index) {
-                int day = 23 + index;
-                return _buildDateButton(day);
-              }),
-            ),
-
-            SizedBox(height: 15),
-
-            // Chọn giờ
-            Text("Pick your time", style: TextStyle(fontWeight: FontWeight.bold)),
-            DropdownButton<String>(
-              value: selectedTime,
-              isExpanded: true,
-              items: ["18h30 - 19h00", "19h00 - 19h30", "19h30 - 20h00"]
-                  .map((time) => DropdownMenuItem(value: time, child: Text(time)))
-                  .toList(),
-              onChanged: (value) => setState(() => selectedTime = value!),
-            ),
-
-            SizedBox(height: 15),
-
-            // Chọn số lượng khách
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("How many people?", style: TextStyle(fontWeight: FontWeight.bold)),
-                Row(
-                  children: [
-                    _buildCounterButton("-", () {
-                      if (peopleCount > 1) setState(() => peopleCount--);
-                    }),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text("$peopleCount", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    ),
-                    _buildCounterButton("+", () {
-                      setState(() => peopleCount++);
-                    }),
-                  ],
-                ),
-              ],
-            ),
-
-            SizedBox(height: 15),
-
-            // Chọn vaccine pass
-            Row(
-              children: [
-                Checkbox(value: vaccinePass, onChanged: (value) => setState(() => vaccinePass = value!)),
-                Text("Vaccine green passes"),
-              ],
-            ),
-
-            // Ghi chú
-            TextField(
-              controller: notesController,
-              decoration: InputDecoration(labelText: "Notes", border: OutlineInputBorder()),
-              maxLines: 2,
-            ),
-
-            SizedBox(height: 15),
-
-            // Thông tin người đặt
-            Text("Your information", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
-            _buildTextField("Full name", nameController),
-            _buildTextField("Phone number", phoneController),
-            _buildTextField("Email", emailController),
-
-            // Đồng ý điều khoản
-            Row(
-              children: [
-                Checkbox(value: agreeTerms, onChanged: (value) => setState(() => agreeTerms = value!)),
-                Text("I agree with restaurant "),
-                TextButton(
-                  onPressed: () {},
-                  child: Text("terms of service", style: TextStyle(color: Colors.blue)),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 15),
-
-            // Nút đặt chỗ
-            ElevatedButton(
-              onPressed: () {
-                if (agreeTerms) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Reservation Confirmed!")));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You must agree to the terms.")));
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                minimumSize: Size(double.infinity, 50),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildReservationTab(),
+                  _buildMenuTab(),
+                  _buildReviewTab(),
+                ],
               ),
-              child: Text("RESERVE", style: TextStyle(color: Colors.white, fontSize: 18)),
             ),
           ],
         ),
@@ -221,68 +69,216 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  // Widget tab
-  Widget _buildTab(String title, bool isSelected) {
-    return TextButton(
-      onPressed: () {},
-      child: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: isSelected ? Colors.red : Colors.black,
-        ),
+  Widget _buildReservationTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          CustomDatePicker(
+            onDateSelected: (date) => setState(() => selectedDate = date),
+          ),
+          const SizedBox(height: 10),
+          TimePickerWidget(
+            onTimeSelected: (time) => setState(() => selectedTime = time),
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<int>(
+            decoration: const InputDecoration(labelText: "Number of Guests"),
+            value: selectedGuests,
+            items: List.generate(10, (index) => index + 1)
+                .map((number) => DropdownMenuItem(
+              value: number,
+              child: Text("$number"),
+            ))
+                .toList(),
+            onChanged: (value) => setState(() => selectedGuests = value),
+          ),
+          const SizedBox(height: 10),
+          TextField(controller: _nameController, decoration: const InputDecoration(labelText: "Full Name")),
+          TextField(controller: _phoneController, decoration: const InputDecoration(labelText: "Phone Number"), keyboardType: TextInputType.phone),
+          TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email"), keyboardType: TextInputType.emailAddress),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Checkbox(
+                value: isChecked,
+                onChanged: (value) => setState(() => isChecked = value ?? false),
+              ),
+              const Text("I agree with restaurant terms of service"),
+            ],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+              ),
+              onPressed: () {
+                if (isChecked) {
+                  _showConfirmationDialog();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please accept the terms of service")),
+                  );
+                }
+              },
+              child: const Text("RESERVE", style: TextStyle(color: Colors.white)),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // Widget yêu cầu đặc biệt
-  Widget _buildRequirement(String text) {
-    return Row(
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: _buildConfirmWidget(),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("CANCEL"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Reservation Confirmed!")),
+                );
+              },
+              child: const Text("CONFIRM"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildConfirmWidget() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.warning_amber_rounded, color: Colors.red, size: 20),
-        SizedBox(width: 8),
-        Text(text, style: TextStyle(color: Colors.red)),
+        const Text("Your Reservation", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            const Icon(Icons.location_on, color: Colors.red),
+            const SizedBox(width: 10),
+            Expanded(child: Text(widget.name)),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            const Icon(Icons.calendar_today, color: Colors.red),
+            const SizedBox(width: 10),
+            Text(selectedDate != null ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}" : "Not selected"),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            const Icon(Icons.access_time, color: Colors.red),
+            const SizedBox(width: 10),
+            Text(selectedTime != null ? "${selectedTime!.hour}:${selectedTime!.minute}" : "Not selected"),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            const Icon(Icons.people, color: Colors.red),
+            const SizedBox(width: 10),
+            Text("${selectedGuests ?? 1} People"),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            const CircleAvatar(
+              backgroundImage: AssetImage("assets/profile.jpg"), // Thay bằng hình avatar của người dùng nếu có
+              radius: 20,
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_nameController.text.isNotEmpty ? _nameController.text : "Your Name"),
+                Text(_phoneController.text.isNotEmpty ? _phoneController.text : "Phone Number"),
+                Text(_emailController.text.isNotEmpty ? _emailController.text : "Email"),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            const Icon(Icons.event_seat, color: Colors.red),
+            const SizedBox(width: 10),
+            const Text("Window Seats"),
+          ],
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          "Your deposit is 200.000VND",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+        ),
+        const SizedBox(height: 5),
+        const Text("Please pay within 30 minutes, if not, your reservation will be canceled automatically."),
       ],
     );
   }
+}
 
-  // Widget chọn ngày
-  Widget _buildDateButton(int day) {
-    return GestureDetector(
-      onTap: () => setState(() => selectedDate = day),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: selectedDate == day ? Colors.red : Colors.grey[300],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: [
-            Text("$day", style: TextStyle(color: selectedDate == day ? Colors.white : Colors.black)),
-            Text("TUE", style: TextStyle(fontSize: 12, color: Colors.black54)),
-          ],
-        ),
-      ),
-    );
-  }
 
-  // Widget nút tăng giảm số người
-  Widget _buildCounterButton(String symbol, VoidCallback onPressed) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Text(symbol, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-      color: Colors.red,
-    );
-  }
+Widget _buildMenuTab() {
+  return FutureBuilder<List<dynamic>>(
+    future: ProductService().fetchBestSellers(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text("Error loading menu"));
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Center(child: Text("No menu items available"));
+      } else {
+        final foodItems = snapshot.data!;
+        int? selectedIndex;
 
-  // Widget nhập thông tin
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 10),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
-      ),
-    );
-  }
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: foodItems.length,
+              itemBuilder: (context, index) {
+                return BestSellerItem(
+                  item: foodItems[index],
+                  isSelected: selectedIndex == index,
+                  onTap: () {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                );
+              },
+            );
+          },
+        );
+      }
+    },
+  );
+}
+
+
+
+Widget _buildReviewTab() {
+  return Center(
+    child: Text("Reviews will be displayed here", style: TextStyle(fontSize: 18)),
+  );
 }

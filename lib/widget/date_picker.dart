@@ -1,115 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart' as carousel;
+import 'package:intl/intl.dart';
 
-class DatePickerWidget extends StatefulWidget {
+class CustomDatePicker extends StatefulWidget {
+  final Function(DateTime) onDateSelected; // Thêm callback
+
+  const CustomDatePicker({Key? key, required this.onDateSelected}) : super(key: key);
+
   @override
-  _DatePickerWidgetState createState() => _DatePickerWidgetState();
+  _CustomDatePickerState createState() => _CustomDatePickerState();
 }
 
-class _DatePickerWidgetState extends State<DatePickerWidget> {
-  String selectedMonth = 'September';
-  int selectedYear = 2021;
-  int selectedDay = 25;
+class _CustomDatePickerState extends State<CustomDatePicker> {
+  DateTime currentMonth = DateTime.now();
+  int selectedIndex = 0; // Chỉ mục của ngày được chọn
 
-  final List<String> months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
+  @override
+  void initState() {
+    super.initState();
+    selectedIndex = DateTime.now().day - 1; // Mặc định là ngày hiện tại
+  }
 
-  final List<Map<String, dynamic>> days = [
-    {'day': 23, 'week': 'MO'},
-    {'day': 24, 'week': 'TU'},
-    {'day': 25, 'week': 'WE'},
-    {'day': 26, 'week': 'TH'},
-    {'day': 27, 'week': 'FR'},
-    {'day': 28, 'week': 'SA'},
-  ];
+  List<DateTime> generateDates() {
+    int totalDays = DateTime(currentMonth.year, currentMonth.month + 1, 0).day;
+    return List.generate(totalDays, (index) => DateTime(currentMonth.year, currentMonth.month, index + 1));
+  }
 
   @override
   Widget build(BuildContext context) {
+    List<DateTime> dates = generateDates();
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Chọn tháng & năm
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Pick your date',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(width: 10),
-            DropdownButton<String>(
-              value: selectedMonth,
-              items: months.map((String month) {
-                return DropdownMenuItem<String>(
-                  value: month,
-                  child: Text(month),
+            const Text("Pick your date", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Spacer(),
+            DropdownButton<int>(
+              value: currentMonth.month,
+              items: List.generate(12, (index) {
+                return DropdownMenuItem(
+                  value: index + 1,
+                  child: Text(DateFormat.MMMM().format(DateTime(2021, index + 1, 1))),
                 );
-              }).toList(),
-              onChanged: (value) {
+              }),
+              onChanged: (newValue) {
                 setState(() {
-                  selectedMonth = value!;
+                  currentMonth = DateTime(currentMonth.year, newValue!, 1);
+                  selectedIndex = 0; // Reset về ngày đầu tháng
                 });
               },
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             DropdownButton<int>(
-              value: selectedYear,
-              items: [2021, 2022, 2023].map((int year) {
-                return DropdownMenuItem<int>(
+              value: currentMonth.year,
+              items: [2024, 2025, 2026, 2027].map((year) {
+                return DropdownMenuItem(
                   value: year,
                   child: Text(year.toString()),
                 );
               }).toList(),
-              onChanged: (value) {
+              onChanged: (newValue) {
                 setState(() {
-                  selectedYear = value!;
+                  currentMonth = DateTime(newValue!, currentMonth.month, 1);
+                  selectedIndex = 0; // Reset về ngày đầu tháng
                 });
               },
             ),
           ],
         ),
-        SizedBox(height: 10),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: days.map((date) {
-              bool isSelected = date['day'] == selectedDay;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedDay = date['day'];
-                  });
-                },
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 5),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.brown : Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black),
+
+        const SizedBox(height: 10),
+
+        // Chọn ngày
+        carousel.CarouselSlider.builder(
+          itemCount: dates.length,
+          itemBuilder: (context, index, realIndex) {
+            DateTime date = dates[index];
+            bool isSelected = index == selectedIndex;
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedIndex = index;
+                });
+                widget.onDateSelected(date); // Gọi callback khi chọn ngày
+              },
+              child: Column(
+                children: [
+                  Text(
+                    DateFormat.E().format(date).toUpperCase(), // Hiển thị thứ (MO, TU, ...)
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
-                  child: Column(
-                    children: [
-                      Text(
-                        date['day'].toString(),
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected ? Colors.red : Colors.white,
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Text(
+                      DateFormat.d().format(date),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.white : Colors.black,
                       ),
-                      Text(
-                        date['week'],
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                ],
+              ),
+            );
+          },
+          options: carousel.CarouselOptions(
+            height: 80,
+            viewportFraction: 0.15,
+            enableInfiniteScroll: false,
+            initialPage: selectedIndex,
           ),
         ),
       ],

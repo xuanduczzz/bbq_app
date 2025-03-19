@@ -6,6 +6,7 @@ import 'package:buoi10/widget/restaurant_card.dart';
 import 'package:buoi10/widget/deal_card.dart';
 import 'package:buoi10/page/best_seller_page.dart';
 import 'our_restaurant_page.dart';
+import 'package:buoi10/widget/drawer_widget.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -18,9 +19,13 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
-          onPressed: () {},
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: Colors.black),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
         ),
         title: Row(
           children: [
@@ -39,6 +44,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+      drawer: CustomDrawer(), // Thêm Drawer vào đây
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
@@ -96,7 +102,6 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
-
             ProductList(),
             SizedBox(height: 20),
             // Our Restaurant Section
@@ -120,6 +125,7 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
 
 class SectionHeader extends StatelessWidget {
   final String title;

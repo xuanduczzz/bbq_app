@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:buoi10/page/reservation_page.dart';
- // Import màn hình chi tiết
 
 class RestaurantCard extends StatelessWidget {
   final String name;
   final String address;
   final String imageUrl;
+  final bool isClickable; // Thêm biến kiểm soát điều hướng
 
   const RestaurantCard({
     required this.name,
     required this.address,
     required this.imageUrl,
+    this.isClickable = true, // Mặc định là có thể nhấn
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Khi bấm vào card, chuyển sang màn hình chi tiết
+      onTap: isClickable
+          ? () {
+        // Chuyển đến ReservationPage nếu isClickable = true
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -29,13 +31,14 @@ class RestaurantCard extends StatelessWidget {
             ),
           ),
         );
-      },
+      }
+          : null, // Nếu isClickable = false thì không làm gì
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         elevation: 4,
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Stack(
@@ -45,7 +48,8 @@ class RestaurantCard extends StatelessWidget {
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+                errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.broken_image, size: 100, color: Colors.grey),
               ),
               Container(
                 width: double.infinity,
@@ -63,8 +67,8 @@ class RestaurantCard extends StatelessWidget {
                 left: 0,
                 right: 0,
                 child: Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16),
@@ -76,12 +80,12 @@ class RestaurantCard extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         address,
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),

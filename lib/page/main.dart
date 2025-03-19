@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../widget/OnboardingScreen1.dart';
 import '../widget/OnboardingScreen2.dart';
@@ -8,17 +9,30 @@ import 'package:buoi10/page/home_page.dart';
 import 'package:buoi10/page/reservation_page.dart';
 import 'package:buoi10/page/login_page.dart';
 import 'package:buoi10/page/sign_up.dart';
+import 'package:buoi10/cubit/auth_cubit.dart';
 
 void main() {
-  runApp(MaterialApp(
-    home: AnimatedSplashScreen(
-      duration: 3000,
-      splash: 'assets/images/Logo.png',
-      nextScreen:LoginScreen(),
-      splashTransition: SplashTransition.fadeTransition,
-      backgroundColor: Color(0xFFF6EFE8),
+  runApp(
+    BlocProvider(
+      create: (context) => AuthCubit()..checkLoginStatus(),
+      child: MyApp(),
     ),
-  ));
+  );
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: AnimatedSplashScreen(
+        duration: 3000,
+        splash: 'assets/images/Logo.png',
+        nextScreen: HomePage(),
+        splashTransition: SplashTransition.fadeTransition,
+        backgroundColor: Color(0xFFF6EFE8),
+      ),
+    );
+  }
 }
 
 class OnboardingScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:buoi10/data/user_prefs.dart';
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
