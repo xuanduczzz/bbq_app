@@ -3,7 +3,7 @@ import 'package:buoi10/page/sign_up.dart';
 import 'package:buoi10/data/user_prefs.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'main.dart';
-import 'package:buoi10/cubit/auth_cubit.dart';
+import 'package:buoi10/cubit/Login_cubit/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -16,9 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthCubit(),
-      child: Scaffold(
+      return Scaffold(
         body: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -126,7 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

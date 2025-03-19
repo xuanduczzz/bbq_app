@@ -9,16 +9,21 @@ import 'package:buoi10/page/home_page.dart';
 import 'package:buoi10/page/reservation_page.dart';
 import 'package:buoi10/page/login_page.dart';
 import 'package:buoi10/page/sign_up.dart';
-import 'package:buoi10/cubit/auth_cubit.dart';
+import 'package:buoi10/cubit/Login_cubit/auth_cubit.dart';
+import 'package:buoi10/cubit/Reservation_cubit/reservation_cubit.dart';
 
 void main() {
   runApp(
-    BlocProvider(
-      create: (context) => AuthCubit()..checkLoginStatus(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthCubit()..checkLoginStatus()),
+        BlocProvider(create: (context) => ReservationCubit()),
+      ],
       child: MyApp(),
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   @override

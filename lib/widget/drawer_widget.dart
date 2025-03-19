@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:buoi10/cubit/auth_cubit.dart'; // Import file quản lý trạng thái đăng nhập
+import 'package:buoi10/cubit/Login_cubit/auth_cubit.dart'; // Import file quản lý trạng thái đăng nhập
 import 'package:buoi10/page/login_page.dart';
 
 class CustomDrawer extends StatelessWidget {

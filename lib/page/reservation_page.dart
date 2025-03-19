@@ -4,6 +4,9 @@ import 'package:buoi10/widget/date_picker.dart';
 import 'package:buoi10/widget/time_picker.dart';
 import 'package:buoi10/widget/best_seller_item.dart';
 import 'package:buoi10/data/product_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:buoi10/cubit/Reservation_cubit/reservation_cubit.dart';
+import 'package:buoi10/cubit/Reservation_cubit/reservation_state.dart';
 
 class ReservationPage extends StatefulWidget {
   final String name;
@@ -25,6 +28,7 @@ class _ReservationPageState extends State<ReservationPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
@@ -88,23 +92,32 @@ class _ReservationPageState extends State<ReservationPage> {
             decoration: const InputDecoration(labelText: "Number of Guests"),
             value: selectedGuests,
             items: List.generate(10, (index) => index + 1)
-                .map((number) => DropdownMenuItem(
-              value: number,
-              child: Text("$number"),
-            ))
+                .map((number) =>
+                DropdownMenuItem(
+                  value: number,
+                  child: Text("$number"),
+                ))
                 .toList(),
             onChanged: (value) => setState(() => selectedGuests = value),
           ),
           const SizedBox(height: 10),
-          TextField(controller: _nameController, decoration: const InputDecoration(labelText: "Full Name")),
-          TextField(controller: _phoneController, decoration: const InputDecoration(labelText: "Phone Number"), keyboardType: TextInputType.phone),
-          TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email"), keyboardType: TextInputType.emailAddress),
+          TextField(controller: _noteController,
+              decoration: const InputDecoration(labelText: "Note")),
+          TextField(controller: _nameController,
+              decoration: const InputDecoration(labelText: "Full Name")),
+          TextField(controller: _phoneController,
+              decoration: const InputDecoration(labelText: "Phone Number"),
+              keyboardType: TextInputType.phone),
+          TextField(controller: _emailController,
+              decoration: const InputDecoration(labelText: "Email"),
+              keyboardType: TextInputType.emailAddress),
           const SizedBox(height: 10),
           Row(
             children: [
               Checkbox(
                 value: isChecked,
-                onChanged: (value) => setState(() => isChecked = value ?? false),
+                onChanged: (value) =>
+                    setState(() => isChecked = value ?? false),
               ),
               const Text("I agree with restaurant terms of service"),
             ],
@@ -119,14 +132,16 @@ class _ReservationPageState extends State<ReservationPage> {
               ),
               onPressed: () {
                 if (isChecked) {
-                  _showConfirmationDialog();
+                  _showConfirmationDialog(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please accept the terms of service")),
+                    const SnackBar(
+                        content: Text("Please accept the terms of service")),
                   );
                 }
               },
-              child: const Text("RESERVE", style: TextStyle(color: Colors.white)),
+              child: const Text(
+                  "RESERVE", style: TextStyle(color: Colors.white)),
             ),
           ),
         ],
@@ -134,21 +149,22 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  void _showConfirmationDialog() {
+  void _showConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          content: _buildConfirmWidget(),
+          content: _buildConfirmWidget(context),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text("CANCEL"),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
-                Navigator.pop(context);
+                context.read<ReservationCubit>().confirmReservation();
+                Navigator.pop(dialogContext);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Reservation Confirmed!")),
                 );
@@ -161,124 +177,146 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  Widget _buildConfirmWidget() {
+  Widget _buildConfirmWidget(BuildContext context) {
+    final reservation = context
+        .watch<ReservationCubit>()
+        .state;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text("Your Reservation", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("Your Reservation",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
+
         Row(
           children: [
             const Icon(Icons.location_on, color: Colors.red),
             const SizedBox(width: 10),
-            Expanded(child: Text(widget.name)),
+            Expanded(child: Text(reservation.name.isNotEmpty
+                ? reservation.name
+                : "Not specified")),
           ],
         ),
+
         const SizedBox(height: 5),
+
         Row(
           children: [
             const Icon(Icons.calendar_today, color: Colors.red),
             const SizedBox(width: 10),
-            Text(selectedDate != null ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}" : "Not selected"),
+            Text(reservation.date != null
+                ? "${reservation.date!.day}/${reservation.date!
+                .month}/${reservation.date!.year}"
+                : "Not selected"),
           ],
         ),
+
         const SizedBox(height: 5),
+
         Row(
           children: [
             const Icon(Icons.access_time, color: Colors.red),
             const SizedBox(width: 10),
-            Text(selectedTime != null ? "${selectedTime!.hour}:${selectedTime!.minute}" : "Not selected"),
+            Text(reservation.time != null ? "${reservation.time!
+                .hour}:${reservation.time!.minute}" : "Not selected"),
           ],
         ),
+
         const SizedBox(height: 5),
+
         Row(
           children: [
             const Icon(Icons.people, color: Colors.red),
             const SizedBox(width: 10),
-            Text("${selectedGuests ?? 1} People"),
+            Text("${reservation.guests} People"),
           ],
         ),
+
         const SizedBox(height: 10),
+
         Row(
           children: [
             const CircleAvatar(
-              backgroundImage: AssetImage("assets/profile.jpg"), // Thay bằng hình avatar của người dùng nếu có
+              backgroundImage: AssetImage("assets/profile.jpg"),
               radius: 20,
             ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_nameController.text.isNotEmpty ? _nameController.text : "Your Name"),
-                Text(_phoneController.text.isNotEmpty ? _phoneController.text : "Phone Number"),
-                Text(_emailController.text.isNotEmpty ? _emailController.text : "Email"),
+                Text(
+                    reservation.note.isNotEmpty ? reservation.note : "No Note"),
+                Text(reservation.name.isNotEmpty
+                    ? reservation.name
+                    : "Your Name"),
+                Text(reservation.phone.isNotEmpty
+                    ? reservation.phone
+                    : "Phone Number"),
+                Text(
+                    reservation.email.isNotEmpty ? reservation.email : "Email"),
               ],
             ),
           ],
         ),
+
         const SizedBox(height: 10),
-        Row(
-          children: [
-            const Icon(Icons.event_seat, color: Colors.red),
-            const SizedBox(width: 10),
-            const Text("Window Seats"),
-          ],
-        ),
-        const SizedBox(height: 10),
+
         const Text(
           "Your deposit is 200.000VND",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
         ),
         const SizedBox(height: 5),
-        const Text("Please pay within 30 minutes, if not, your reservation will be canceled automatically."),
+        const Text(
+            "Please pay within 30 minutes, if not, your reservation will be canceled automatically."),
       ],
     );
   }
-}
 
 
-Widget _buildMenuTab() {
-  return FutureBuilder<List<dynamic>>(
-    future: ProductService().fetchBestSellers(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Text("Error loading menu"));
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return Center(child: Text("No menu items available"));
-      } else {
-        final foodItems = snapshot.data!;
-        int? selectedIndex;
+  Widget _buildMenuTab() {
+    return FutureBuilder<List<dynamic>>(
+      future: ProductService().fetchBestSellers(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Error loading menu"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text("No menu items available"));
+        } else {
+          final foodItems = snapshot.data!;
+          int? selectedIndex;
 
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: foodItems.length,
-              itemBuilder: (context, index) {
-                return BestSellerItem(
-                  item: foodItems[index],
-                  isSelected: selectedIndex == index,
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                );
-              },
-            );
-          },
-        );
-      }
-    },
-  );
-}
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: foodItems.length,
+                itemBuilder: (context, index) {
+                  return BestSellerItem(
+                    item: foodItems[index],
+                    isSelected: selectedIndex == index,
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                    },
+                  );
+                },
+              );
+            },
+          );
+        }
+      },
+    );
+  }
 
 
-
-Widget _buildReviewTab() {
-  return Center(
-    child: Text("Reviews will be displayed here", style: TextStyle(fontSize: 18)),
-  );
+  Widget _buildReviewTab() {
+    return Center(
+      child: Text(
+          "Reviews will be displayed here", style: TextStyle(fontSize: 18)),
+    );
+  }
 }
