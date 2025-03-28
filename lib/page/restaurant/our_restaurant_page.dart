@@ -83,10 +83,11 @@ class _OurRestaurantPageState extends State<OurRestaurantPage> {
                   final restaurant = restaurants[index];
 
                   return RestaurantCard(
-                    name: restaurant['name'] ?? 'Unknown',
-                    address: restaurant['address'] ?? 'No address',
-                    imageUrl: restaurant['image'] ?? 'assets/images/banner1.png',
+                    name: restaurant.nameRestaurant ?? 'Unknown',
+                    address: restaurant.address ?? 'No address',
+                    imageUrl: restaurant.image ?? 'assets/images/banner1.png',
                   );
+
                 },
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:buoi10/cubit/Login_cubit/auth_cubit.dart'; // Import file quản lý trạng thái đăng nhập
 import 'package:buoi10/page/login/login_page.dart';
+import 'package:buoi10/page/reservation_history/reservation_history.dart';
 
 class CustomDrawer extends StatelessWidget {
   @override
@@ -66,7 +67,19 @@ class CustomDrawer extends StatelessWidget {
             },
           ),
           DrawerItem(icon: Icons.home, text: "Home", onTap: () {}),
-          DrawerItem(icon: Icons.list, text: "Reservation", onTap: () {}),
+          DrawerItem(
+            icon: Icons.list,
+            text: "Reservation",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReservationHistoryPage(),
+                ),
+              );
+            },
+          ),
+
           DrawerItem(icon: Icons.info, text: "About us", onTap: () {}),
         ],
       ),

@@ -17,7 +17,13 @@ class ReservationLoaded extends ReservationState {
   @override
   List<Object> get props => [reservations];
 }
+class ReservationAddSuccess extends ReservationState {
+  final List<Reservation> reservations;
+  ReservationAddSuccess(this.reservations);
 
+  @override
+  List<Object> get props => [reservations];
+}
 class ReservationError extends ReservationState {
   final String message;
   ReservationError(this.message);

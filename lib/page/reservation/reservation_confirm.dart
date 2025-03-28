@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:buoi10/page/reservation/reservation_bloc/reservation_bloc.dart'; // Đảm bảo import đúng file Bloc
 import 'package:buoi10/data/model/reservation_model.dart';
-import 'package:buoi10/page/reservation_history.dart';
+import 'package:buoi10/page/reservation_history/reservation_history.dart';
 
 
 class ConfirmationDialog {
@@ -28,19 +28,19 @@ class ConfirmationDialog {
                   bloc.add(AddReservation(reservation));
 
                   // Đợi Bloc cập nhật xong rồi fetch lại danh sách
-                  Future.delayed(const Duration(milliseconds: 500), () {
-                    bloc.add(FetchReservations());
-
-                    // Chuyển trang sau khi Bloc đã cập nhật danh sách
-                    Navigator.pop(dialogContext);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ReservationHistoryPage(),
-                      ),
-                    );
-
-                  });
+                  // Future.delayed(const Duration(milliseconds: 500), () {
+                  //   bloc.add(FetchReservations());
+                  //
+                  //   // Chuyển trang sau khi Bloc đã cập nhật danh sách
+                  //   Navigator.pop(dialogContext);
+                  //   Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => ReservationHistoryPage(),
+                  //     ),
+                  //   );
+                  //
+                  // });
                 },
                 child: const Text("CONFIRM"),
               ),

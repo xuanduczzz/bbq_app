@@ -8,6 +8,8 @@ import 'package:buoi10/page/product/best_seller_page.dart';
 import '../restaurant/our_restaurant_page.dart';
 import 'package:buoi10/page/drawer/drawer_widget.dart';
 import 'package:buoi10/page/notification/notification_page.dart';
+import 'package:buoi10/page/happydeals/happydeal/happy_deal_page.dart';
+import 'package:buoi10/route/route_management.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -42,10 +44,7 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.black),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => NotificationPage()),
-                );
+                Navigator.pushNamed(context, AppRoutes.notifications);
               }
 
           ),
@@ -103,10 +102,8 @@ class HomePage extends StatelessWidget {
             SectionHeader(
               title: "Best seller",
               onTapSeeAll: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => BestSellerPage()),
-                );
+                Navigator.pushNamed(context, AppRoutes.bestSeller);
+
               },
             ),
             ProductList(),
@@ -115,16 +112,20 @@ class HomePage extends StatelessWidget {
             SectionHeader(
               title: "Our restaurant",
               onTapSeeAll: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => OurRestaurantPage()),
-                );
+                Navigator.pushNamed(context, AppRoutes.ourRestaurant);
+
               },
             ),
             RestaurantList(),
             SizedBox(height: 20),
             // Happy Deals Section
-            SectionHeader(title: "Happy Deals"),
+            SectionHeader(
+                title: "Happy Deals",
+                onTapSeeAll: () {
+                  Navigator.pushNamed(context, AppRoutes.happyDeals);
+
+                },
+            ),
             HappyDeals(),
           ],
         ),

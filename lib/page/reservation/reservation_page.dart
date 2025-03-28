@@ -8,6 +8,8 @@ import 'package:buoi10/data/service/product_service.dart';
 import 'package:buoi10/page/reservation/reservation_confirm.dart';
 import 'package:buoi10/data/model/reservation_model.dart';
 import 'package:buoi10/page/reservation/reservation_bloc/reservation_bloc.dart';
+import 'package:buoi10/page/reservation_history/reservation_history.dart';
+import 'package:buoi10/route/route_management.dart';
 
 import '../../data/model/restaurant_model.dart';
 import '../../data/model/user_model.dart';
@@ -81,7 +83,12 @@ class _ReservationPageState extends State<ReservationPage> {
   }
 
   Widget _buildReservationTab() {
-    return BlocBuilder<ReservationBloc, ReservationState>(
+    return BlocConsumer<ReservationBloc, ReservationState>(
+      listener: (context,state){
+        if(state is ReservationAddSuccess){
+          Navigator.pushReplacementNamed(context, AppRoutes.reservationHistory);
+        }
+      },
       builder: (context, state) {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

@@ -12,15 +12,13 @@ import 'package:buoi10/page/login/sign_up.dart';
 import 'package:buoi10/cubit/Login_cubit/auth_cubit.dart';
 import 'package:buoi10/page/reservation/reservation_bloc/reservation_bloc.dart';
 import 'package:buoi10/page/notification/notification_bloc/notification_bloc.dart';
+import 'package:buoi10/route/route_management.dart';
 
 void main() {
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthCubit()..checkLoginStatus()),
-        BlocProvider(
-          create: (context) => ReservationBloc(),
-        ),
         BlocProvider(
           create: (context) => NotificationBloc(),
         ),
@@ -35,6 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      onGenerateRoute: AppRoutes.generateRoute,
       home: AnimatedSplashScreen(
         duration: 3000,
         splash: 'assets/images/Logo.png',
@@ -82,10 +81,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // Skip button
                 TextButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()), // Chuyển sang HomePage
-                    );
+                    Navigator.pushReplacementNamed(context, AppRoutes.home);
                   },
                   child: Text(
                     'Skip',

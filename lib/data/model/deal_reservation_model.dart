@@ -26,11 +26,11 @@ enum ReservationStatus {
   }
 }
 
-class Reservation {
+class DealReservation {
   final String? id;
   DateTime? createdDate;
   DateTime? updatedDate;
-  Restaurant? restaurantInfo;
+  List<Restaurant>? restaurants; // Thay đổi từ một nhà hàng thành danh sách nhà hàng
   int? peopleCount;
   String? timeRange;
   ReservationStatus? status;
@@ -39,14 +39,14 @@ class Reservation {
   int? starCount;
   int? amount;
 
-  Reservation({
+  DealReservation({
     this.id,
     this.createdDate,
     this.updatedDate,
     this.peopleCount,
     this.timeRange,
     this.status = ReservationStatus.pending,
-    this.restaurantInfo,
+    this.restaurants,
     this.userInfo,
     this.notes,
     this.starCount,
@@ -54,12 +54,14 @@ class Reservation {
   });
 
   /// Chuyển đổi từ JSON sang đối tượng Reservation
-  static Reservation fromJson(Map<String, dynamic> json) {
-    return Reservation(
+  static DealReservation fromJson(Map<String, dynamic> json) {
+    return DealReservation(
       id: json['id'] as String?,
       createdDate: json['createdDate'] != null ? DateTime.parse(json['createdDate']) : null,
       updatedDate: json['updatedDate'] != null ? DateTime.parse(json['updatedDate']) : null,
-      restaurantInfo: json['restaurantInfo'] != null ? Restaurant.fromJson(json['restaurantInfo']) : null,
+      restaurants: json['restaurants'] != null
+          ? (json['restaurants'] as List).map((r) => Restaurant.fromJson(r)).toList()
+          : null, // Xử lý danh sách nhà hàng
       peopleCount: json['peopleCount'] as int?,
       timeRange: json['timeRange'] as String?,
       status: ReservationStatus.fromString(json['status'] as String),
@@ -76,7 +78,7 @@ class Reservation {
       'id': id,
       'createdDate': createdDate?.toIso8601String(),
       'updatedDate': updatedDate?.toIso8601String(),
-      'restaurantInfo': restaurantInfo?.toJson(),
+      'restaurants': restaurants?.map((r) => r.toJson()).toList(),
       'peopleCount': peopleCount,
       'timeRange': timeRange,
       'status': status?.name,

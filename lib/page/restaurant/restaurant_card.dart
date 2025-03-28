@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:buoi10/page/reservation/reservation_page.dart';
+import 'package:buoi10/route/route_management.dart';
 
 class RestaurantCard extends StatelessWidget {
   final String name;
   final String address;
   final String imageUrl;
-  final bool isClickable; // Thêm biến kiểm soát điều hướng
+  final bool isClickable;
 
   const RestaurantCard({
     required this.name,
     required this.address,
     required this.imageUrl,
-    this.isClickable = true, // Mặc định là có thể nhấn
+    this.isClickable = true,
     super.key,
   });
 
@@ -21,16 +22,16 @@ class RestaurantCard extends StatelessWidget {
       onTap: isClickable
           ? () {
         // Chuyển đến ReservationPage nếu isClickable = true
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) => ReservationPage(
-              name: name,
-              address: address,
-              imageUrl: imageUrl,
-            ),
-          ),
+          AppRoutes.reservation,
+          arguments: {
+            'name': name,
+            'address': address,
+            'imageUrl': imageUrl,
+          },
         );
+
       }
           : null, // Nếu isClickable = false thì không làm gì
       child: Card(
