@@ -9,11 +9,12 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      reservation: Reservation.fromJson(json['reservation']),
-      isRead: json['isRead'],
-      createdAt: DateTime.parse(json['createdAt']),
+      reservation: json['reservation'] != null ? Reservation.fromJson(json['reservation']) : null,
+      isRead: json['isRead'] ?? false,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
     );
   }
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -22,5 +23,13 @@ class NotificationModel {
       'createdAt': createdAt?.toIso8601String(),
     };
   }
+  NotificationModel copyWith({bool? isRead}) {
+    return NotificationModel(
+      reservation: reservation,
+      createdAt: createdAt,
+      isRead: isRead ?? this.isRead,
+    );
+  }
 }
+
 

@@ -1,13 +1,14 @@
+import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:buoi10/data/model/notification_model.dart';
-import 'package:buoi10/data/model/reservation_model.dart';
+import 'package:buoi10/page/notification/notification_data.dart'; // Import file notification_data.dart
 
 part 'notification_event.dart';
 part 'notification_state.dart';
 
-// Bloc
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   List<NotificationModel> notifications = [];
 
@@ -15,21 +16,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<FetchNotificationData>((event, emit) async {
       emit(Loading());
       try {
-        // Giả lập dữ liệu fetch
-        await Future.delayed(Duration(seconds: 2));
-        notifications = [
-          NotificationModel(
-              reservation: Reservation(
-                  status: ReservationStatus.pending,
-                  id: '23657865346',
-                  amount: 690000)),
-          NotificationModel(
-              reservation: Reservation(
-                  status: ReservationStatus.finished,
-                  id: '111111111',
-                  amount: 318516734816847)),
-        ];
-        emit(FetchDataSuccess(notifications.cast<NotificationModel>()));
+        notifications = await _loadNotifications();
+
+        // Nếu chưa có dữ liệu trong SharedPreferences, dùng danh sách mẫu
+        if (notifications.isEmpty) {
+          notifications = List.from(sampleNotifications);
+          await _saveNotifications();
+        }
+        emit(FetchDataSuccess(List.from(notifications)));
       } catch (e) {
         emit(Failure("Failed to fetch data"));
       }
@@ -37,9 +31,17 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
     on<MarkAsReadItem>((event, emit) async {
       try {
-        // Giả lập đánh dấu một item là đã đọc
         await Future.delayed(Duration(milliseconds: 500));
-        emit(MarkAsReadItemSuccess("Item ${event.itemId}"));
+
+        notifications = notifications.map((notif) {
+          if (notif.reservation?.id == event.itemId) {
+            return notif.copyWith(isRead: true);
+          }
+          return notif;
+        }).toList();
+
+        await _saveNotifications();
+        emit(FetchDataSuccess(List.from(notifications)));
       } catch (e) {
         emit(Failure("Failed to mark item as read"));
       }
@@ -47,13 +49,28 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
     on<MarkAsReadAll>((event, emit) async {
       try {
-        // Giả lập đánh dấu tất cả là đã đọc
-        await Future.delayed(Duration(milliseconds: 500));
-        emit(MarkAsReadSuccess([]));
+        notifications = notifications.map((notif) => notif.copyWith(isRead: true)).toList();
+        await _saveNotifications();
+        emit(FetchDataSuccess(List.from(notifications)));
       } catch (e) {
         emit(Failure("Failed to mark all as read"));
       }
     });
   }
-}
 
+  Future<void> _saveNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> jsonList =
+    notifications.map((e) => jsonEncode(e.toJson())).toList();
+    await prefs.setStringList('notifications', jsonList);
+  }
+
+  Future<List<NotificationModel>> _loadNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String>? jsonList = prefs.getStringList('notifications');
+    if (jsonList == null) return [];
+    return jsonList
+        .map((e) => NotificationModel.fromJson(jsonDecode(e)))
+        .toList();
+  }
+}

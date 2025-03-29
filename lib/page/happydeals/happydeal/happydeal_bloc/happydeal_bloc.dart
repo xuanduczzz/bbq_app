@@ -25,7 +25,7 @@ class HappyDealBloc extends Bloc<HappyDealEvent, HappyDealState> {
         Deal(
           id: 3,
           name: "Weekend Special",
-          description: "Enjoy exclusive discounts \nthis weekend!",
+          description: "Enjoy exclusive \ndiscounts ",
           imageUrl: "https://drive.google.com/uc?export=view&id=1Te9NCcloeCtXFuOpY4XOh5OxuH22DZei",
         ),
         Deal(
