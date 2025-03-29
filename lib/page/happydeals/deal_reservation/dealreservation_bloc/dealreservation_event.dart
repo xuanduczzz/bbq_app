@@ -1,21 +1,17 @@
-
-
 part of 'dealreservation_bloc.dart';
 
 
-
-abstract class ReservationEvent extends Equatable {
+abstract class RestaurantEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
 
-class CreateReservation extends ReservationEvent {
-  final String reservationId;
+class LoadRestaurantsById extends RestaurantEvent {
+  final List<String> restaurantIds; // Chỉ load những ID này
 
-  CreateReservation(this.reservationId);
+  LoadRestaurantsById(this.restaurantIds);
 
   @override
-  List<Object> get props => [reservationId];
+  List<Object> get props => [restaurantIds];
 }
 
-class LoadReservation extends ReservationEvent {}

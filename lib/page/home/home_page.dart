@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../../data/model/restaurant_model.dart';
 import 'banner_item.dart';
-import 'package:buoi10/page/product/product_card.dart';
+import 'package:buoi10/page/home/product_home.dart';
 import 'package:buoi10/page/restaurant/restaurant_card.dart';
-import 'package:buoi10/widget/deal_card.dart';
+import 'package:buoi10/page/happydeals/happydeal/widget/deal_card.dart';
 import 'package:buoi10/page/product/best_seller_page.dart';
 import '../restaurant/our_restaurant_page.dart';
 import 'package:buoi10/page/drawer/drawer_widget.dart';
 import 'package:buoi10/page/notification/notification_page.dart';
 import 'package:buoi10/page/happydeals/happydeal/happy_deal_page.dart';
 import 'package:buoi10/route/route_management.dart';
+import 'package:buoi10/data/service/restaurant_service.dart';
+import 'package:buoi10/data/service/product_service.dart';
+import 'package:buoi10/data/model/product_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:buoi10/page/happydeals/happydeal/happydeal_bloc/happydeal_bloc.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -17,7 +23,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocProvider(
+      create: (context) => HappyDealBloc()..add(LoadDeals()),
+  child: Scaffold(
       backgroundColor: Color(0xFFF6EFE8),
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -130,7 +138,8 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+);
   }
 }
 
@@ -160,31 +169,94 @@ class SectionHeader extends StatelessWidget {
 }
 
 
-class ProductList extends StatelessWidget {
+class ProductList extends StatefulWidget {
+  @override
+  _ProductListState createState() => _ProductListState();
+}
+
+class _ProductListState extends State<ProductList> {
+  final ProductService _productService = ProductService();
+  late Future<List<Product>> _products;
+
+  @override
+  void initState() {
+    super.initState();
+    _products = _productService.fetchProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 250,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          ProductCard(image: 'assets/images/beef_ribs.png', name: "Beef Ribs", location: "An BBQ Su Van Hanh"),
-          ProductCard(image: 'assets/images/beef_bacon.png', name: "Beef Bacon", location: "An BBQ Dong Khoi"),
-        ],
-      ),
+    return FutureBuilder<List<Product>>(
+      future: _products,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Failed to load products'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No products available'));
+        } else {
+          List<Product> products = snapshot.data!..shuffle();
+          return Container(
+            height: 250,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: products.take(5).map((product) {
+                return ProductCard(
+                  image: product.image ?? 'assets/images/default_product.png',
+                  name: product.name ?? "Unknown Product",
+                );
+              }).toList(),
+            ),
+          );
+        }
+      },
     );
   }
 }
 
-class RestaurantList extends StatelessWidget {
+
+class RestaurantList extends StatefulWidget {
+  @override
+  _RestaurantListState createState() => _RestaurantListState();
+}
+
+class _RestaurantListState extends State<RestaurantList> {
+  final RestaurantService _restaurantService = RestaurantService();
+  late Future<List<Restaurant>> _restaurants;
+
+  @override
+  void initState() {
+    super.initState();
+    _restaurants = _restaurantService.fetchRestaurants();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        RestaurantCard(name: "An BBQ Dong Khoi", address: "Vincom Center, No.70 Le Thanh Ton, District 1, HCMC",imageUrl: "assets/images/banner1.png"),
-        RestaurantCard(name: "An BBQ Su Van Hanh", address: "No. 716 Su Van Hanh, District 10, HCMC",imageUrl: "assets/images/banner2.png"),
-        RestaurantCard(name: "An BBQ Nguyen Van Cu", address: "No. 235 Nguyen Van Cu, District 10, HCMC",imageUrl: "assets/images/banner3.png"),
-      ],
+    return FutureBuilder<List<Restaurant>>(
+      future: _restaurants,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Failed to load data'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No restaurants available'));
+        } else {
+          // Chỉ lấy 3 nhà hàng đầu tiên
+          List<Restaurant> restaurants = snapshot.data!..shuffle(); // Xáo trộn danh sách
+          return Column(
+            children: restaurants.take(3).whereType<Restaurant>().map((restaurant) {
+              return RestaurantCard(
+                name: restaurant.nameRestaurant ?? "Unknown Restaurant",
+                address: restaurant.address ?? "Unknown Address",
+                imageUrl: restaurant.image ?? 'assets/images/default_image.png',
+              );
+            }).toList(),
+          );
+
+        }
+      },
     );
   }
 }
@@ -192,19 +264,62 @@ class RestaurantList extends StatelessWidget {
 class HappyDeals extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: DealCard(title: "LAAARGE DISCOUNTS", description: "Upto 20% OFF\nNo upper limit!", color: Colors.red),
-        ),
-        SizedBox(width: 10),
-        Expanded(
-          child: DealCard(title: "TRY NEW", description: "Explore unique\nFor new eaters", color: Colors.green),
-        ),
-      ],
+    return BlocProvider(
+      create: (context) => HappyDealBloc()..add(LoadDeals()),
+      child: BlocBuilder<HappyDealBloc, HappyDealState>(
+        builder: (context, state) {
+          if (state is DealsLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else if (state is DealsLoaded) {
+            final deals = state.deals?.where((deal) => deal?.id != null).take(3).toList() ?? [];
+
+            if (deals.isEmpty) {
+              return Center(child: Text("Không có deal nào!"));
+            }
+
+            return SizedBox(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: deals.length,
+                physics: BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                itemBuilder: (context, index) {
+                  final deal = deals[index];
+                  return SizedBox(
+                    width: 300, // Điều chỉnh chiều rộng tại đây
+                    height: 140, // Điều chỉnh chiều cao tại đây (nếu cần)
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.discountScreen,
+                          arguments: deal,
+                        );
+                      },
+                      child: (deal.id != null && deal.id! % 2 == 0)
+                          ? DealCard2(deal: deal)
+                          : DealCard1(deal: deal),
+                    ),
+                  );
+                },
+              ),
+            );
+          } else {
+            return Center(child: Text("Không có deal nào!"));
+          }
+        },
+      ),
     );
   }
 }
+
+
+
+
+
+
+
 
 
 

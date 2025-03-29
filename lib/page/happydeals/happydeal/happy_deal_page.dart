@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:buoi10/page/happydeals/happydeal/happydeal_bloc/happydeal_bloc.dart';
 import 'package:buoi10/page/happydeals/happydeal/widget/deal_card.dart';
 import 'package:buoi10/page/happydeals/dealdetail/deal_detail_page.dart';
+import 'package:buoi10/route/route_management.dart';
 
 class HappyDealPage extends StatelessWidget {
   @override
@@ -23,12 +24,12 @@ class HappyDealPage extends StatelessWidget {
                   final deal = state.deals[index];
                   return GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => DiscountScreen(deal: deal),
-                          ),
+                          AppRoutes.discountScreen, // ✅ Định danh route
+                          arguments: deal, // ✅ Truyền đối tượng Deal
                         );
+
                       },
                   child: deal.id % 2 == 0
                       ? DealCard2(deal: deal)  // Nếu id chẵn, dùng DealCard2

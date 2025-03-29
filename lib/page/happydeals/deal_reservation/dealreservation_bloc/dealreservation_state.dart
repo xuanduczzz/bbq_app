@@ -1,23 +1,32 @@
 part of 'dealreservation_bloc.dart';
 
-
-
-abstract class ReservationState extends Equatable {
+abstract class RestaurantState extends Equatable {
   @override
   List<Object> get props => [];
 }
 
-class ReservationLoading extends ReservationState {}
+// Trạng thái khởi tạo
+class RestaurantInitial extends RestaurantState {}
 
-class ReservationLoaded extends ReservationState {}
+// Trạng thái đang tải danh sách nhà hàng
+class RestaurantLoading extends RestaurantState {}
 
-class ReservationSuccess extends ReservationState {}
+// Trạng thái tải danh sách nhà hàng thành công
+class RestaurantLoaded extends RestaurantState {
+  final List<Restaurant> restaurants;
 
-class ReservationFail extends ReservationState {
-  final String error;
-
-  ReservationFail(this.error);
+  RestaurantLoaded(this.restaurants);
 
   @override
-  List<Object> get props => [error];
+  List<Object> get props => [restaurants];
+}
+
+// Trạng thái lỗi khi tải danh sách nhà hàng
+class RestaurantError extends RestaurantState {
+  final String message;
+
+  RestaurantError(this.message);
+
+  @override
+  List<Object> get props => [message];
 }

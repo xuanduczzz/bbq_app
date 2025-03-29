@@ -23,13 +23,13 @@ class DealDetailBloc extends Bloc<DealDetailEvent, DealDetailState> {
       // Giả lập dữ liệu từ API hoặc database
       final dealData = DealDetailModel(
         deal: event.deal,
-        imageUrl1: "https://example.com/image1.jpg",
+        imageUrl1: "https://drive.google.com/uc?export=view&id=1GMFMADPU0cdMbKLSbEkOMUgv1eP6Ls3z",
         dealDetail1: "Chi tiết deal 1",
-        imageUrl2: "https://example.com/image2.jpg",
+        imageUrl2: "https://drive.google.com/file/d/1DURMoPLnDnzVRGdhXcOa_E52PgqJ4m-n/view?usp=sharing",
         dealDetail2: "Chi tiết deal 2",
         imageUrl3: "https://example.com/image3.jpg",
       );
-      emit(DetailLoaded(dealData: event.deal)); // ✅ Truyền đúng kiểu dữ liệu
+      emit(DetailLoaded(dealData: event.deal));
 
     } catch (e) {
       emit(LoadFail("Lỗi tải dữ liệu"));

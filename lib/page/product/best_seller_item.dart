@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:buoi10/data/model/product_model.dart'; // Import model Product
 
 class BestSellerItem extends StatelessWidget {
-  final dynamic item;
+  final Product item; // Sử dụng kiểu Product thay vì dynamic
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -39,7 +40,7 @@ class BestSellerItem extends StatelessWidget {
                 bottomLeft: Radius.circular(12),
               ),
               child: Image.network(
-                item['image'],
+                item.image ?? 'assets/images/beef_ribs.png', // Sửa item['image'] thành item.image
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
@@ -61,7 +62,7 @@ class BestSellerItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item['name'],
+                      item.name ?? "Unknown Product", // Sửa item['name'] thành item.name
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -69,7 +70,7 @@ class BestSellerItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      item['description'],
+                      item.description ?? " ", // Sửa item['description'] thành item.location
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -80,7 +81,7 @@ class BestSellerItem extends StatelessWidget {
                       children: [
                         for (int i = 0; i < 5; i++)
                           Icon(
-                            i < (item['rating']?.toInt() ?? 0)
+                            i < (item.reviewCount?.toInt() ?? 0) // Sửa item['rating'] thành item.rating
                                 ? Icons.star
                                 : Icons.star_border,
                             color: Colors.red,
@@ -88,7 +89,7 @@ class BestSellerItem extends StatelessWidget {
                           ),
                         const SizedBox(width: 4),
                         Text(
-                          '(${item['reviewCount'] ?? 0})',
+                          '(${item.reviewCount ?? 0})', // Sửa item['reviewCount'] thành item.reviewCount
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.grey[600],

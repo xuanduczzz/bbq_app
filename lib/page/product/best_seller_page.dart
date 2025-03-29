@@ -24,7 +24,7 @@ class _BestSellerPageState extends State<BestSellerPage> {
 
   Future<void> fetchBestSellers() async {
     try {
-      List<dynamic> data = await apiService.fetchBestSellers();
+      List<dynamic> data = await apiService.fetchProducts();
       setState(() {
         foodItems = data;
         isLoading = false;

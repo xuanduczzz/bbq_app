@@ -12,6 +12,11 @@ import 'package:buoi10/page/product/best_seller_page.dart';
 import 'package:buoi10/page/happydeals/happydeal/happy_deal_page.dart';
 import 'package:buoi10/page/notification/notification_page.dart';
 import 'package:buoi10/page/reservation_history/reservation_history.dart';
+import 'package:buoi10/page/happydeals/deal_reservation/deal_reservation_page.dart';
+import 'package:buoi10/page/happydeals/dealdetail/deal_detail_page.dart';
+
+import '../data/model/deal_model.dart';
+
 
 class AppRoutes {
   static const String home = '/home';
@@ -24,6 +29,11 @@ class AppRoutes {
   static const String happyDeals = '/happy_deals';
   static const String notifications = '/notifications';
   static const String reservationHistory = '/reservation_history';
+  static const String dealreservation = '/deal_reservation';
+  static const String discountScreen = '/discountScreen';
+
+
+
 
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -56,6 +66,14 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => NotificationPage());
       case reservationHistory:
         return MaterialPageRoute(builder: (_) => ReservationHistoryPage());
+      case dealreservation:
+        return MaterialPageRoute(builder: (_) => DealReservationScreen());
+      case discountScreen:
+        final deal = settings.arguments as Deal?;
+        return MaterialPageRoute(
+          builder: (_) => DiscountScreen(deal: deal!),
+        );
+
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
